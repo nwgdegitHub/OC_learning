@@ -23,8 +23,8 @@
     // 实例化person, self对person弱引用，person的retainCount不变
     
     HSPerson *person = [[HSPerson alloc] init];
-    
-    
+    // NSLog(@"%d",[person retainCount]); ARC中已经不支持看引用计数了
+   
     
 }
 

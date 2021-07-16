@@ -34,4 +34,9 @@
     return 100;
 }
 
+- (void)dealloc
+{
+    NSLog(@"HeadTeacher----销毁");
+}
+
 @end

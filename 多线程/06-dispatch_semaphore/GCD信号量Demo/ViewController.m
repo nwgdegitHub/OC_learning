@@ -3,6 +3,7 @@
  　　dispatch_semaphore_t dispatch_semaphore_create(long value);
  　　传入的参数为long，输出一个dispatch_semaphore_t类型且值为value的信号量。
  　　值得注意的是，这里的传入的参数value必须大于或等于0，否则dispatch_semaphore_create会返回NULL。
+ 　　value=0的时候是绿灯。只有value<0时才会等待。
  　　（关于信号量，我就不在这里累述了，网上很多介绍这个的。我们这里主要讲一下dispatch_semaphore这三个函数的用法）。
 
  （2）dispatch_semaphore_signal的声明为：
@@ -28,6 +29,10 @@
  详细例子参考：
  https://www.cnblogs.com/wangkejia/p/12600352.html#!comments
  
+ 
+ 信号量的使用场景就是：需要等待异步请求结束，在主线程执行相应操作。也就是线程等待。
+ 
+ 
  */
 
 #import "ViewController.h"
@@ -41,21 +46,27 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    [self dispatch_group_function1];
+//    [self dispatch_group_function1];
+    
+    //不使用信号量试试(直接跳过了等待，去主线程执行去了)
+    [self dispatch_group_function2];
+    
 }
 
 -(void)dispatch_group_function1
 {
+    
 //    dispatch_semaphore_t semaphore = dispatch_semaphore_create(100);
     
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0); //信号量初始化为0 ，可以进入主线程对UI刷新 当子线程分配了耗时任务，这时候dispatch_semaphore_wait 函数会消耗信号量 ，耗时任务结束，信号量会恢复+1
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    //当子线程分配了耗时任务，这时候dispatch_semaphore_wait 函数会消耗信号量 ，耗时任务结束，信号量会恢复+1
     
     
 //    断点1
     //<OS_dispatch_semaphore: semaphore[0x600000cb8140] = { xref = 1, ref = 1, port = 0x0, value = 100, orig = 100 }>
     
     //这里为啥是0
-    //这里的传入的参数value必须大于或等于0，否则dispatch_semaphore_create会返回NULL。
+    //这里的传入的参数value必须大于或等于0，否则dispatch_semaphore_create会返回NULL。//信号量初始化为0 ，可以进入主线程对UI刷新
  
     
     dispatch_group_t group = dispatch_group_create();
@@ -89,7 +100,7 @@
     
     dispatch_group_async(group, queue, ^{
         
-        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://www.github.com"]];
+        NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://www.sina.com"]];
         
         NSURLSessionDownloadTask *task = [[NSURLSession sharedSession] downloadTaskWithRequest:request completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             // 请求完成，可以通知界面刷新界面等操作
@@ -112,9 +123,55 @@
     });
     
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-        NSLog(@"刷新界面等在主线程的操作");
+        NSLog(@"不管网络请求是成功还是失败，在主线程刷新UI");
     });
+
 }
 
+-(void)dispatch_group_function2{
 
+        
+        dispatch_group_t group = dispatch_group_create();
+        
+        dispatch_queue_t queue = dispatch_queue_create("com.dispatch.test", DISPATCH_QUEUE_CONCURRENT);
+        
+        dispatch_group_async(group, queue, ^{
+            
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://www.baidu.com"]];
+            
+            NSURLSessionDownloadTask *task = [[NSURLSession sharedSession] downloadTaskWithRequest:request completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                // 请求完成，可以通知界面刷新界面等操作
+                NSLog(@"第一步网络请求完成");
+
+            }];
+            
+            [task resume];
+            
+            // 以下还要进行一些其他的耗时操作
+            NSLog(@"第一步网络请求----耗时操作继续进行%@",[NSThread currentThread]);
+   
+        });
+        
+        dispatch_group_async(group, queue, ^{
+            
+            NSURLRequest *request = [[NSURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://www.sina.com"]];
+            
+            NSURLSessionDownloadTask *task = [[NSURLSession sharedSession] downloadTaskWithRequest:request completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                // 请求完成，可以通知界面刷新界面等操作
+                NSLog(@"第二步网络请求完成");
+
+            }];
+            
+            [task resume];
+            
+            // 以下还要进行一些其他的耗时操作
+            NSLog(@"第二步网络请求----耗时操作继续进行%@",[NSThread currentThread]);
+
+        });
+        
+        dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+            NSLog(@"不管网络请求是成功还是失败，在主线程刷新UI");
+        });
+
+}
 @end

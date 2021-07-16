@@ -32,6 +32,7 @@
 		7C1D3F7D2255ABC000016602 /* HSDog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSDog.m; sourceTree = "<group>"; };
 		7C1D3F7F2255AC2600016602 /* HSPerson.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSPerson.h; sourceTree = "<group>"; };
 		7C1D3F802255AC2600016602 /* HSPerson.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSPerson.m; sourceTree = "<group>"; };
+		7C5447B7269E8830002FBD16 /* HSDogDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HSDogDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +74,7 @@
 				7C1D3F712255AB9000016602 /* LaunchScreen.storyboard */,
 				7C1D3F742255AB9000016602 /* Info.plist */,
 				7C1D3F752255AB9000016602 /* main.m */,
+				7C5447B7269E8830002FBD16 /* HSDogDelegate.h */,
 				7C1D3F7C2255ABC000016602 /* HSDog.h */,
 				7C1D3F7D2255ABC000016602 /* HSDog.m */,
 				7C1D3F7F2255AC2600016602 /* HSPerson.h */,

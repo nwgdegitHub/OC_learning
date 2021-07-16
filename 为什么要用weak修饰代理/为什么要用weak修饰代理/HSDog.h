@@ -10,11 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HSDogDelegate <NSObject>
-
-
-@end
-
 @interface HSDog : NSObject
 
 @property (nonatomic, weak) id delegate; //weak修饰 HSDog/HSPerson都会走dealloc 方法

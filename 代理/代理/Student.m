@@ -25,4 +25,10 @@
         
     }
 }
+
+- (void)dealloc
+{
+    NSLog(@"Student----销毁");
+}
+
 @end
